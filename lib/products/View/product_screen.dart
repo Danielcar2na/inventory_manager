@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/home/widgets/user_item_list.dart';
+import 'package:flutter_application_1/products/View/add_product_form.dart';
 import 'package:flutter_application_1/products/model/product.dart';
 import 'package:flutter_application_1/products/view_model/product_view_model.dart';
 import 'package:flutter_application_1/products/widgets/product_item_list.dart';
@@ -14,6 +15,12 @@ class ProductScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          title: Text('Productos'),
+          actions: [
+            AddProductForm(),
+          ]
+        ),
           backgroundColor: const Color.fromARGB(223, 255, 255, 255),
           body: Column(
             children: [
@@ -42,38 +49,6 @@ class ProductScreen extends StatelessWidget {
           )),
     );
   }
-}
-
-Widget card1(Product product) {
-  return Container(
-    margin: const EdgeInsets.symmetric(vertical: 15),
-    width: Get.width * 0.95,
-    height: Get.height * 0.25,
-    child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // logoAzul(),
-              Text(
-                style: TextStyle(
-                    color: Colors.blue[900],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15),
-                'Hola, ${product.codigo}',
-              ),
-              Text(
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
-                  'Bienvenido'),
-            ], // lo que se muestra en la pantalla
-          ),
-        )),
-  );
 }
 
 Widget logoAzul() {

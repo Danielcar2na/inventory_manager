@@ -14,6 +14,7 @@ class ProductViewModel extends GetxController {
     getProducts();
     super.onInit();
   }
+  
 
   void getProducts() async {
     SqliteService sqliteService = SqliteService();
@@ -132,8 +133,8 @@ void editProduct(int index, Product updatedProduct) async {
     Get.snackbar("Error", "No se pudo editar el producto");
   }
 }
-
- // Método para agregar un producto
+//////////////////////////////////////////////////////////////////////////7
+  // Método para agregar un producto
   void addProduct(Product newProduct) async {
     SqliteService sqliteService = SqliteService();
     Database db = await sqliteService.openDB();
@@ -154,8 +155,8 @@ void editProduct(int index, Product updatedProduct) async {
       Get.snackbar("Error", "No se pudo agregar el producto");
     }
   }
-
-
+  
 }
+
 
 

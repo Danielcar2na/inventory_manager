@@ -16,18 +16,15 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+          appBar: AppBar(
+            title: Text('Clientes'),
+            actions: [
+              _CustomBottom(),
+            ],
+          ),
           backgroundColor: const Color.fromARGB(223, 255, 255, 255),
           body: Column(
             children: [
-              CustomButton(
-              backgroundColor: Colors.white,
-              onPressed: () {
-                 Get.to(() => ProductScreen());
-              },
-              text: 'ir a productos'),
-              Center(
-                child: card1(viewModel.seller),
-              ),
               Obx(() => SingleChildScrollView(
                     controller: viewModel.scrollController,
                     scrollDirection: Axis.vertical,
@@ -48,6 +45,24 @@ class HomeScreen extends StatelessWidget {
             ],
           )),
     );
+  }
+}
+
+class _CustomBottom extends StatelessWidget {
+  const _CustomBottom({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+    style: ButtonStyle(
+
+    ),
+    onPressed: () {
+       Get.to(() => ProductScreen());
+    },
+     child: Text('Ir a productos'),);
   }
 }
 
