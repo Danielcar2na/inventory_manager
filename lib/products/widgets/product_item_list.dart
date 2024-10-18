@@ -48,7 +48,6 @@ class ProductItemList extends StatelessWidget {
             Text('Precio: \$${product.precio.toStringAsFixed(2)}'),
             Text('Fecha: ${DateFormat('dd/MM/yyyy').format(product.createAt)}'),
             Text('Cantidad: ${product.inventario.toString()}')
-            
           ],
         ),
       ),
@@ -81,43 +80,35 @@ class ProductItemList extends StatelessWidget {
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                 ),
                 Row(
-              children: [
-                Text('Cantidad: '),
-                Row(
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.remove),
-                      onPressed: () {
-                        viewModel.decreaseInventory(product.inventario);
-                      },
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
-                    ),
-                     SizedBox(
-                      width: 50,
-                      child: TextFormField(
-                        initialValue: product.inventario.toString(),
-                        textAlign: TextAlign.center,
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) => viewModel.updateInventoryDirectly(index, value),
-                        decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+                    Text('Cantidad: '),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove),
+                          onPressed: () {
+                            viewModel.decreaseInventory(
+                                index); // Pasar el índice del producto
+                          },
+                          
+                          constraints: BoxConstraints(),
                         ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () {
-                        viewModel.increaseInventory(product.inventario);
-                      },
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
+                        SizedBox(
+                            width: 50,
+                            child: Text(product.inventario.toString())),
+                        IconButton(
+                          icon: Icon(Icons.add),
+                          onPressed: () {
+                            viewModel.increaseInventory(
+                                index); // Pasar el índice del producto
+                          },
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints(),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
                 ListTile(
                   title: Text(
                       'Fecha: ${DateFormat('dd/MM/yyyy').format(selectedDate)}'),

@@ -5,7 +5,7 @@ import 'package:flutter_application_1/home/view/home.dart';
 import 'package:flutter_application_1/login/model/seller.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
-
+ 
 class HomeViewModel extends GetxController {
   Seller seller;
   ScrollController scrollController = ScrollController();

@@ -15,7 +15,7 @@ class ProductScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Productos'),
+          title: Text('Inventario'),
           actions: [
             AddProductForm(),
           ],

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/database/sqlite.dart';
+import 'package:flutter_application_1/products/View/product_screen.dart';
 import 'package:flutter_application_1/products/model/product.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ProductViewModel extends GetxController {
   ScrollController scrollController = ScrollController();
+  ProductViewModel() {
+    Get.to(() => ProductScreen());
+  }
   RxList<Product> productList = RxList();
   RxList<Product> filteredProductList = RxList();
 
@@ -36,7 +40,7 @@ class ProductViewModel extends GetxController {
             print("Error parsing date: ${item["CreateAt"]}");
             createAt = null;
           }
-          
+
           Product product = Product(
             agrupacion: item["Agrupacion"],
             archivo: item["Archivo"],
@@ -88,7 +92,7 @@ class ProductViewModel extends GetxController {
     } else {
       filteredProductList.value = productList.where((product) {
         return product.createAt.isAfter(startDate.value!) &&
-               product.createAt.isBefore(endDate.value!.add(Duration(days: 1)));
+            product.createAt.isBefore(endDate.value!.add(Duration(days: 1)));
       }).toList();
     }
   }
@@ -113,7 +117,7 @@ class ProductViewModel extends GetxController {
 
     SqliteService sqliteService = SqliteService();
     Database db = await sqliteService.openDB();
-    
+
     try {
       await db.delete(
         'ProductosCatalogo',
@@ -191,7 +195,7 @@ class ProductViewModel extends GetxController {
     int nextCodigo = 1;
 
     try {
-      List<Map> result = await db.rawQuery('''
+      List<Map> result = await db.rawQuery(''' 
         SELECT MAX(CAST(Codigo AS INTEGER)) as maxCodigo FROM ProductosCatalogo
       ''');
 
@@ -260,17 +264,20 @@ class ProductViewModel extends GetxController {
       );
 
       if (rowsAffected > 0) {
+        // Actualiza el inventario en la lista filtrada
         int filteredIndex = filteredProductList.indexWhere((p) => p.codigo == product.codigo);
         if (filteredIndex != -1) {
           filteredProductList[filteredIndex] = product.copyWith(inventario: newInventory);
         }
 
+        // Actualiza el inventario en la lista original
         int originalIndex = productList.indexWhere((p) => p.codigo == product.codigo);
         if (originalIndex != -1) {
           productList[originalIndex] = product.copyWith(inventario: newInventory);
         }
 
-        update(); // Notifica a los widgets que usan este controlador que deben actualizarse
+        // Notifica a los widgets que usan este controlador que deben actualizarse
+        update(); 
       } else {
         Get.snackbar("Error", "No se encontró el producto para actualizar");
       }
@@ -287,37 +294,37 @@ extension ProductExtension on Product {
     // Añade aquí otros campos que puedan necesitar actualizarse
   }) {
     return Product(
-      agrupacion: this.agrupacion,
-      archivo: this.archivo,
-      bodega: this.bodega,
-      categoria: this.categoria,
-      cenExt2: this.cenExt2,
-      clave: this.clave,
-      codigo: this.codigo,
-      core: this.core,
-      ean: this.ean,
-      gm4: this.gm4,
-      grupo: this.grupo,
-      itf: this.itf,
-      iva: this.iva,
-      linea: this.linea,
-      lineaproduccion: this.lineaproduccion,
-      marca: this.marca,
-      nombre: this.nombre,
-      pagaPastilla: this.pagaPastilla,
-      peso: this.peso,
-      portafolio: this.portafolio,
-      precio: this.precio,
-      saldo: this.saldo,
-      sector: this.sector,
-      subcategoria: this.subcategoria,
-      sublinea: this.sublinea,
-      unidades: this.unidades,
-      unidadesxcaja: this.unidadesxcaja,
-      unidadmedida: this.unidadmedida,
-      vendedor: this.vendedor,
-      marcadd: this.marcadd,
-      createAt: this.createAt,
+      agrupacion: agrupacion,
+      archivo: archivo,
+      bodega: bodega,
+      categoria: categoria,
+      cenExt2: cenExt2,
+      clave: clave,
+      codigo: codigo,
+      core: core,
+      ean: ean,
+      gm4: gm4,
+      grupo: grupo,
+      itf: itf,
+      iva: iva,
+      linea: linea,
+      lineaproduccion: lineaproduccion,
+      marca: marca,
+      nombre: nombre,
+      pagaPastilla: pagaPastilla,
+      peso: peso,
+      portafolio: portafolio,
+      precio: precio,
+      saldo: saldo,
+      sector: sector,
+      subcategoria: subcategoria,
+      sublinea: sublinea,
+      unidades: unidades,
+      unidadesxcaja: unidadesxcaja,
+      unidadmedida: unidadmedida,
+      vendedor: vendedor,
+      marcadd: marcadd,
+      createAt: createAt,
       inventario: inventario ?? this.inventario,
     );
   }

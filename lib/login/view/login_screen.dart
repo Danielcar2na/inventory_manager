@@ -15,22 +15,23 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color.fromARGB(250, 0, 0, 61),
       body: Center(
-        child: Center(
+        child: SingleChildScrollView(
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                logo(),
-                campoUsuario(),
-                campoContrasena(),
-                btnEntrar()
-              ]),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              logo(),
+              campoUsuario(),
+              campoContrasena(),
+              btnEntrar()
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget singIn() {
-    return const Text('Sing in',
+    return const Text('Sign in',
         style: TextStyle(color: Colors.white, fontSize: 35));
   }
 
@@ -40,7 +41,7 @@ class LoginScreen extends StatelessWidget {
       child: CustomTextField(
         userEditingController: viewModel.userTextField,
         prefixIconData: Icons.person,
-        hint: 'usuario',
+        hint: 'Usuario',
         maxLenght: 20,
       ),
     );
@@ -48,13 +49,15 @@ class LoginScreen extends StatelessWidget {
 
   Widget campoContrasena() {
     return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 2),
-        child: CustomTextField(
-          userEditingController: viewModel.passwordTextField,
-          prefixIconData: Icons.lock,
-          hint: 'password',
-          maxLenght: 20,
-        ));
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 2),
+      child: CustomTextField(
+        userEditingController: viewModel.passwordTextField,
+        prefixIconData: Icons.lock,
+        hint: 'Contraseña',
+        maxLenght: 20,
+        obscure: true,
+      ),
+    );
   }
 
   Widget btnEntrar() {
@@ -80,8 +83,8 @@ class LoginScreen extends StatelessWidget {
       child: Column(
         children: [
           Image.asset(
-            'res/images/logo.png',
-            width: 180,
+            'assets/img/description.png',
+            width: 130,
           ),
         ],
       ),
