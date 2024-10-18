@@ -6,31 +6,44 @@ import 'package:get/get.dart';
 class AddProductForm extends StatelessWidget {
   final viewModel = Get.find<ProductViewModel>();
 
-   AddProductForm({super.key});
+  AddProductForm({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Controladores para los campos de texto
     TextEditingController nombreController = TextEditingController();
     TextEditingController precioController = TextEditingController();
-    // Puedes añadir más controladores para otros campos...
+
+    // Aquí almacenaremos el código autoincremental del producto
+    int nextCodigo = 1;
+
+    // Función para obtener el código del último producto y sumarle 1
+    Future<void> getNextCodigo() async {
+      // Obtener el último producto de la base de datos
+      Product? lastProduct = await viewModel.getLastProduct();
+      // Si hay productos, tomar el código del último y sumarle 1
+      if (lastProduct != null) {
+        nextCodigo = int.parse(lastProduct.codigo) + 1;
+      }
+    }
 
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
+        await getNextCodigo(); // Obtener el próximo código disponible
+
         Get.defaultDialog(
           title: "Agregar Producto",
           content: Column(
             children: [
               TextField(
                 controller: nombreController,
-                decoration: InputDecoration(labelText: "Nombre"),
+                decoration: const InputDecoration(labelText: "Nombre"),
               ),
               TextField(
                 controller: precioController,
-                decoration: InputDecoration(labelText: "Precio"),
+                decoration: const InputDecoration(labelText: "Precio"),
                 keyboardType: TextInputType.number,
               ),
-              // Añadir más campos aquí según lo necesites...
             ],
           ),
           confirm: ElevatedButton(
@@ -43,7 +56,7 @@ class AddProductForm extends StatelessWidget {
                 categoria: '',
                 cenExt2: '',
                 clave: '',
-                codigo: 'Nuevo',
+                codigo: nextCodigo.toString(), // Asignar el código autoincremental
                 core: '',
                 ean: '',
                 gm4: '',
@@ -69,22 +82,27 @@ class AddProductForm extends StatelessWidget {
                 marcadd: '',
               );
 
-              // Llamar al método para agregar el producto
+              // Llamar al método para agregar el producto a la base de datos
               viewModel.addProduct(newProduct);
 
-              Get.back(); // Cerrar el diálogo
+              // Limpiar los campos del formulario
+              nombreController.clear();
+              precioController.clear();
+
+              // Cerrar el diálogo
+              Get.back();
             },
-            child: Text("Agregar Producto"),
+            child: const Text("Agregar"),
           ),
           cancel: ElevatedButton(
             onPressed: () {
               Get.back(); // Cerrar el diálogo
             },
-            child: Text("Cancelar"),
+            child: const Text("Cancelar"),
           ),
         );
       },
-      child: Text("Agregar Producto"),
+      child: const Text("Agregar Producto"),
     );
   }
 }

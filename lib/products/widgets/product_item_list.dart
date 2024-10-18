@@ -31,7 +31,7 @@ class ProductItemList extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
                 ),
-                '${viewModel.productList[position].nombre!} - ${viewModel.productList[position].codigo!} ${viewModel.productList[position].categoria!}',
+                '${viewModel.productList[position].nombre!} - ${viewModel.productList[position].agrupacion!} - ${viewModel.productList[position].bodega!}',
               ),
               Text(
                 viewModel.productList[position].codigo!,

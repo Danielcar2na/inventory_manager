@@ -155,6 +155,68 @@ void editProduct(int index, Product updatedProduct) async {
       Get.snackbar("Error", "No se pudo agregar el producto");
     }
   }
+
+ Future<Product?> getLastProduct() async {
+  SqliteService sqliteService = SqliteService();
+  Database db = await sqliteService.openDB();
+
+  Product? lastProduct;
+
+  // Consulta SQL para obtener el último producto según el campo 'Codigo'
+  String statement = '''
+    SELECT * FROM ProductosCatalogo 
+    ORDER BY Codigo DESC 
+    LIMIT 1
+  ''';
+
+  try {
+    // Ejecutar la consulta
+    List<Map<String, dynamic>> result = await db.rawQuery(statement);
+
+    if (result.isNotEmpty) {
+      var item = result.first;
+
+      // Crear una instancia de Product con los datos obtenidos
+      lastProduct = Product(
+        agrupacion: item["Agrupacion"],
+        archivo: item["Archivo"],
+        bodega: item["Bodega"],
+        categoria: item["Categoria"],
+        cenExt2: item["Cen_ext2"],
+        clave: item["Clave"],
+        codigo: item["Codigo"],
+        core: item["Core"],
+        ean: item["Ean"],
+        gm4: item["GM4"],
+        grupo: item["Grupo"],
+        itf: item["Itf"],
+        iva: item["Iva"],
+        linea: item["Linea"],
+        lineaproduccion: item["Lineaproduccion"],
+        marca: item["Marca"],
+        nombre: item["Nombre"],
+        pagaPastilla: item["Paga_pastilla"],
+        peso: item["Peso"]?.toDouble(),
+        portafolio: item["Portafolio"],
+        precio: item["Precio"],
+        saldo: item["Saldo"],
+        sector: item["Sector"],
+        subcategoria: item["Subcategoria"],
+        sublinea: item["Sublinea"],
+        unidades: item["Unidades"],
+        unidadesxcaja: item["Unidadesxcaja"],
+        unidadmedida: item["Unidadmedida"],
+        vendedor: item["Vendedor"],
+        marcadd: item["marcadd"],
+      );
+    }
+  } catch (e) {
+    Get.snackbar("Error", "No se pudo obtener el último producto",
+        backgroundColor: Colors.red.shade400, colorText: Colors.white);
+  }
+
+  return lastProduct;
+}
   
 }
 
