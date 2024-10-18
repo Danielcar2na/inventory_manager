@@ -12,6 +12,7 @@ class AddProductForm extends StatelessWidget {
   Widget build(BuildContext context) {
     TextEditingController nombreController = TextEditingController();
     TextEditingController precioController = TextEditingController();
+    TextEditingController inventarioController = TextEditingController();
 
     return ElevatedButton(
       onPressed: () async {
@@ -30,11 +31,16 @@ class AddProductForm extends StatelessWidget {
                 decoration: const InputDecoration(labelText: "Precio"),
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
               ),
+              TextField(
+                controller: inventarioController,
+                decoration: const InputDecoration(labelText: "Cantidad en Inventario"),
+                keyboardType: TextInputType.number,
+              ),
             ],
           ),
           confirm: ElevatedButton(
             onPressed: () {
-              if (nombreController.text.isEmpty || precioController.text.isEmpty) {
+              if (nombreController.text.isEmpty || precioController.text.isEmpty || inventarioController.text.isEmpty) {
                 Get.snackbar(
                   "Error",
                   "Por favor, complete todos los campos",
@@ -45,10 +51,11 @@ class AddProductForm extends StatelessWidget {
               }
 
               double? precio = double.tryParse(precioController.text);
-              if (precio == null) {
+              int? inventario = int.tryParse(inventarioController.text);
+              if (precio == null || inventario == null) {
                 Get.snackbar(
                   "Error",
-                  "Por favor, ingrese un precio válido",
+                  "Por favor, ingrese valores válidos para precio e inventario",
                   backgroundColor: Colors.red,
                   colorText: Colors.white,
                 );
@@ -86,13 +93,15 @@ class AddProductForm extends StatelessWidget {
                 unidadmedida: '',
                 vendedor: '',
                 marcadd: '',
-                createAt: DateTime.now(), // Fecha actual
+                createAt: DateTime.now(),
+                inventario: inventario,
               );
 
               viewModel.addProduct(newProduct);
 
               nombreController.clear();
               precioController.clear();
+              inventarioController.clear();
 
               Get.back();
             },

@@ -40,6 +40,7 @@ class Product {
     String vendedor;
     String marcadd;
     DateTime createAt;
+    int inventario;
 
     Product({
         required this.agrupacion,
@@ -73,6 +74,7 @@ class Product {
         required this.vendedor,
         required this.marcadd,
         required this.createAt,
+        required this.inventario,
     });
 
     factory Product.fromJson(Map<String, dynamic> json) => Product(
@@ -107,6 +109,7 @@ class Product {
         vendedor: json["Vendedor"],
         marcadd: json["Marcadd"],
         createAt: DateTime.parse(json["CreateAt"]),
+        inventario: json["Inventario"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -141,5 +144,6 @@ class Product {
         "Vendedor": vendedor,
         "Marcadd": marcadd,
         "CreateAt": createAt.toIso8601String(),
+        "Inventario": inventario,
     };
 }

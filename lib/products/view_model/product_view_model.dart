@@ -18,7 +18,7 @@ class ProductViewModel extends GetxController {
     super.onInit();
   }
 
- void getProducts() async {
+  void getProducts() async {
     SqliteService sqliteService = SqliteService();
     Database db = await sqliteService.openDB();
 
@@ -69,13 +69,14 @@ class ProductViewModel extends GetxController {
             vendedor: item["Vendedor"],
             marcadd: item["marcadd"],
             createAt: createAt ?? DateTime.now(),
+            inventario: item["inventario"] ?? 0,
           );
+          print("Inventario leído de la base de datos: ${item["inventario"]}");
           productList.add(product);
         }
       }
       filteredProductList.value = productList;
     } catch (e) {
-      print("Error fetching products: $e");
       Get.snackbar("Error", 'No se pudieron cargar los productos',
           backgroundColor: Colors.red.shade400, colorText: Colors.white);
     }
@@ -202,5 +203,122 @@ class ProductViewModel extends GetxController {
     }
 
     return nextCodigo;
+  }
+
+  Future<void> increaseInventory(int index) async {
+    if (index < 0 || index >= filteredProductList.length) {
+      Get.snackbar("Error", "Producto no encontrado");
+      return;
+    }
+
+    Product product = filteredProductList[index];
+    int newInventory = product.inventario + 1;
+
+    await _updateInventory(product, newInventory);
+  }
+
+  Future<void> decreaseInventory(int index) async {
+    if (index < 0 || index >= filteredProductList.length) {
+      Get.snackbar("Error", "Producto no encontrado");
+      return;
+    }
+
+    Product product = filteredProductList[index];
+    if (product.inventario > 0) {
+      int newInventory = product.inventario - 1;
+      await _updateInventory(product, newInventory);
+    } else {
+      Get.snackbar("Aviso", "El inventario no puede ser menor que cero");
+    }
+  }
+
+  Future<void> updateInventoryDirectly(int index, String value) async {
+    if (index < 0 || index >= filteredProductList.length) {
+      Get.snackbar("Error", "Producto no encontrado");
+      return;
+    }
+
+    int? newInventory = int.tryParse(value);
+    if (newInventory != null && newInventory >= 0) {
+      Product product = filteredProductList[index];
+      await _updateInventory(product, newInventory);
+    } else {
+      Get.snackbar("Error", "Valor de inventario inválido");
+    }
+  }
+
+  Future<void> _updateInventory(Product product, int newInventory) async {
+    SqliteService sqliteService = SqliteService();
+    Database db = await sqliteService.openDB();
+
+    try {
+      int rowsAffected = await db.update(
+        'ProductosCatalogo',
+        {'inventario': newInventory},
+        where: 'Codigo = ?',
+        whereArgs: [product.codigo],
+      );
+
+      if (rowsAffected > 0) {
+        int filteredIndex = filteredProductList.indexWhere((p) => p.codigo == product.codigo);
+        if (filteredIndex != -1) {
+          filteredProductList[filteredIndex] = product.copyWith(inventario: newInventory);
+        }
+
+        int originalIndex = productList.indexWhere((p) => p.codigo == product.codigo);
+        if (originalIndex != -1) {
+          productList[originalIndex] = product.copyWith(inventario: newInventory);
+        }
+
+        update(); // Notifica a los widgets que usan este controlador que deben actualizarse
+      } else {
+        Get.snackbar("Error", "No se encontró el producto para actualizar");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "No se pudo actualizar el inventario");
+    }
+  }
+}
+
+// Asegúrate de que esta extensión esté definida en tu archivo product.dart
+extension ProductExtension on Product {
+  Product copyWith({
+    int? inventario,
+    // Añade aquí otros campos que puedan necesitar actualizarse
+  }) {
+    return Product(
+      agrupacion: this.agrupacion,
+      archivo: this.archivo,
+      bodega: this.bodega,
+      categoria: this.categoria,
+      cenExt2: this.cenExt2,
+      clave: this.clave,
+      codigo: this.codigo,
+      core: this.core,
+      ean: this.ean,
+      gm4: this.gm4,
+      grupo: this.grupo,
+      itf: this.itf,
+      iva: this.iva,
+      linea: this.linea,
+      lineaproduccion: this.lineaproduccion,
+      marca: this.marca,
+      nombre: this.nombre,
+      pagaPastilla: this.pagaPastilla,
+      peso: this.peso,
+      portafolio: this.portafolio,
+      precio: this.precio,
+      saldo: this.saldo,
+      sector: this.sector,
+      subcategoria: this.subcategoria,
+      sublinea: this.sublinea,
+      unidades: this.unidades,
+      unidadesxcaja: this.unidadesxcaja,
+      unidadmedida: this.unidadmedida,
+      vendedor: this.vendedor,
+      marcadd: this.marcadd,
+      createAt: this.createAt,
+      inventario: inventario ?? this.inventario,
+    );
   }
 }

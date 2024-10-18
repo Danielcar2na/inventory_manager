@@ -8,7 +8,8 @@ class ProductItemList extends StatelessWidget {
   final Product product;
   final int index;
 
-  ProductItemList({Key? key, required this.product, required this.index}) : super(key: key);
+  ProductItemList({Key? key, required this.product, required this.index})
+      : super(key: key);
 
   final viewModel = Get.find<ProductViewModel>();
 
@@ -17,35 +18,37 @@ class ProductItemList extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        title: Text(
-          '${product.nombre} - ${product.codigo}',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: Theme.of(context).primaryColor,
-          ),
-        ),
-        subtitle: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${product.nombre} - ${product.codigo}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () => _showEditDialog(context),
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _showDeleteConfirmation(context),
+                ),
+              ],
+            ),
             Text('Precio: \$${product.precio.toStringAsFixed(2)}'),
             Text('Fecha: ${DateFormat('dd/MM/yyyy').format(product.createAt)}'),
-            Text('Categoría: ${product.categoria}'),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.edit, color: Colors.blue),
-              onPressed: () => _showEditDialog(context),
-            ),
-            IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () => _showDeleteConfirmation(context),
-            ),
+            Text('Cantidad: ${product.inventario.toString()}')
+            
           ],
         ),
       ),
@@ -53,8 +56,10 @@ class ProductItemList extends StatelessWidget {
   }
 
   void _showEditDialog(BuildContext context) {
-    TextEditingController nombreController = TextEditingController(text: product.nombre);
-    TextEditingController precioController = TextEditingController(text: product.precio.toString());
+    TextEditingController nombreController =
+        TextEditingController(text: product.nombre);
+    TextEditingController precioController =
+        TextEditingController(text: product.precio.toString());
     DateTime selectedDate = product.createAt;
 
     showDialog(
@@ -73,10 +78,49 @@ class ProductItemList extends StatelessWidget {
                 TextField(
                   controller: precioController,
                   decoration: InputDecoration(labelText: 'Precio'),
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                 ),
+                Row(
+              children: [
+                Text('Cantidad: '),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.remove),
+                      onPressed: () {
+                        viewModel.decreaseInventory(product.inventario);
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(),
+                    ),
+                     SizedBox(
+                      width: 50,
+                      child: TextFormField(
+                        initialValue: product.inventario.toString(),
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) => viewModel.updateInventoryDirectly(index, value),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {
+                        viewModel.increaseInventory(product.inventario);
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
                 ListTile(
-                  title: Text('CreateAt: ${DateFormat('dd/MM/yyyy').format(selectedDate)}'),
+                  title: Text(
+                      'Fecha: ${DateFormat('dd/MM/yyyy').format(selectedDate)}'),
                   trailing: Icon(Icons.calendar_today),
                   onTap: () async {
                     final DateTime? picked = await showDatePicker(
@@ -133,6 +177,7 @@ class ProductItemList extends StatelessWidget {
                   vendedor: product.vendedor,
                   marcadd: product.marcadd,
                   createAt: selectedDate,
+                  inventario: product.inventario,
                 );
                 viewModel.editProduct(index, updatedProduct);
                 Navigator.of(context).pop();
