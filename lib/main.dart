@@ -14,6 +14,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-        debugShowCheckedModeBanner: false, home: LoginScreen());
+      title: 'Inventory Manager',
+        debugShowCheckedModeBanner: false, 
+        home: LoginScreen());
   }
 }

@@ -19,6 +19,16 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              // Agregar el título aquí
+              const Text(
+                'Inventory Manager',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 35,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 50,),
               logo(),
               campoUsuario(),
               campoContrasena(),
@@ -72,7 +82,7 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 viewModel.login();
               },
-              text: 'iniciar Sesion'),
+              text: 'Iniciar Sesión'),
         ));
   }
 

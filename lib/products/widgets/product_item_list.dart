@@ -59,6 +59,11 @@ class ProductItemList extends StatelessWidget {
         TextEditingController(text: product.nombre);
     TextEditingController precioController =
         TextEditingController(text: product.precio.toString());
+    
+    // Controlador para la cantidad
+    TextEditingController cantidadController =
+        TextEditingController(text: product.inventario.toString());
+    
     DateTime selectedDate = product.createAt;
 
     showDialog(
@@ -87,20 +92,28 @@ class ProductItemList extends StatelessWidget {
                         IconButton(
                           icon: Icon(Icons.remove),
                           onPressed: () {
-                            viewModel.decreaseInventory(
-                                index); // Pasar el índice del producto
+                            viewModel.decreaseInventory(index);
+                            // Actualizar el controlador de cantidad después de decrementar
+                            int currentCantidad = int.tryParse(cantidadController.text) ?? 0;
+                            cantidadController.text = (currentCantidad - 1).toString();
                           },
-                          
                           constraints: BoxConstraints(),
                         ),
                         SizedBox(
-                            width: 50,
-                            child: Text(product.inventario.toString())),
+                          width: 50,
+                          child: TextField(
+                            controller: cantidadController, // Cambiar a TextField
+                            textAlign: TextAlign.center, // Centrar el texto
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
                         IconButton(
                           icon: Icon(Icons.add),
                           onPressed: () {
-                            viewModel.increaseInventory(
-                                index); // Pasar el índice del producto
+                            viewModel.increaseInventory(index);
+                            // Actualizar el controlador de cantidad después de incrementar
+                            int currentCantidad = int.tryParse(cantidadController.text) ?? 0;
+                            cantidadController.text = (currentCantidad + 1).toString();
                           },
                           padding: EdgeInsets.zero,
                           constraints: BoxConstraints(),
@@ -168,7 +181,7 @@ class ProductItemList extends StatelessWidget {
                   vendedor: product.vendedor,
                   marcadd: product.marcadd,
                   createAt: selectedDate,
-                  inventario: product.inventario,
+                  inventario: int.tryParse(cantidadController.text) ?? product.inventario, // Actualizar la cantidad
                 );
                 viewModel.editProduct(index, updatedProduct);
                 Navigator.of(context).pop();

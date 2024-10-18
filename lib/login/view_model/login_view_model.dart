@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/database/sqlite.dart';
-import 'package:flutter_application_1/home/view_model/home_view_model.dart';
 import 'package:flutter_application_1/login/model/seller.dart';
 import 'package:flutter_application_1/products/view_model/product_view_model.dart';
 import 'package:get/get.dart';
