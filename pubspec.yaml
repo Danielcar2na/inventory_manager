@@ -35,9 +35,5 @@ flutter:
     - assets/DataBase.db
     - assets/img/description.png
 
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/img/description.png"
-  min_sdk_android: 16 
+
 
