@@ -10,26 +10,12 @@ class AddProductForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Controladores para los campos de texto
     TextEditingController nombreController = TextEditingController();
     TextEditingController precioController = TextEditingController();
 
-    // Aquí almacenaremos el código autoincremental del producto
-    int nextCodigo = 1;
-
-    // Función para obtener el código del último producto y sumarle 1
-    Future<void> getNextCodigo() async {
-      // Obtener el último producto de la base de datos
-      Product? lastProduct = await viewModel.getLastProduct();
-      // Si hay productos, tomar el código del último y sumarle 1
-      if (lastProduct != null) {
-        nextCodigo = int.parse(lastProduct.codigo) + 1;
-      }
-    }
-
     return ElevatedButton(
       onPressed: () async {
-        await getNextCodigo(); // Obtener el próximo código disponible
+        int nextCodigo = await viewModel.getNextCodigo();
 
         Get.defaultDialog(
           title: "Agregar Producto",
@@ -42,21 +28,41 @@ class AddProductForm extends StatelessWidget {
               TextField(
                 controller: precioController,
                 decoration: const InputDecoration(labelText: "Precio"),
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
               ),
             ],
           ),
           confirm: ElevatedButton(
             onPressed: () {
-              // Crear un nuevo objeto Product con los datos del formulario
+              if (nombreController.text.isEmpty || precioController.text.isEmpty) {
+                Get.snackbar(
+                  "Error",
+                  "Por favor, complete todos los campos",
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
+                return;
+              }
+
+              double? precio = double.tryParse(precioController.text);
+              if (precio == null) {
+                Get.snackbar(
+                  "Error",
+                  "Por favor, ingrese un precio válido",
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
+                return;
+              }
+
               Product newProduct = Product(
-                agrupacion: 'Nuevo', // Añadir valores fijos o controladores
+                agrupacion: 'Nuevo',
                 archivo: '',
                 bodega: '',
                 categoria: '',
                 cenExt2: '',
                 clave: '',
-                codigo: nextCodigo.toString(), // Asignar el código autoincremental
+                codigo: nextCodigo.toString(),
                 core: '',
                 ean: '',
                 gm4: '',
@@ -70,7 +76,7 @@ class AddProductForm extends StatelessWidget {
                 pagaPastilla: '',
                 peso: 0.0,
                 portafolio: '',
-                precio: double.parse(precioController.text),
+                precio: precio,
                 saldo: 0,
                 sector: '',
                 subcategoria: '',
@@ -80,23 +86,21 @@ class AddProductForm extends StatelessWidget {
                 unidadmedida: '',
                 vendedor: '',
                 marcadd: '',
+                createAt: DateTime.now(), // Fecha actual
               );
 
-              // Llamar al método para agregar el producto a la base de datos
               viewModel.addProduct(newProduct);
 
-              // Limpiar los campos del formulario
               nombreController.clear();
               precioController.clear();
 
-              // Cerrar el diálogo
               Get.back();
             },
             child: const Text("Agregar"),
           ),
           cancel: ElevatedButton(
             onPressed: () {
-              Get.back(); // Cerrar el diálogo
+              Get.back();
             },
             child: const Text("Cancelar"),
           ),

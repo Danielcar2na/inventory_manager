@@ -5,30 +5,39 @@ import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ProductViewModel extends GetxController {
-
   ScrollController scrollController = ScrollController();
-  ProductViewModel();
   RxList<Product> productList = RxList();
+  RxList<Product> filteredProductList = RxList();
+
+  Rx<DateTime?> startDate = Rx<DateTime?>(null);
+  Rx<DateTime?> endDate = Rx<DateTime?>(null);
+
   @override
   void onInit() {
     getProducts();
     super.onInit();
   }
-  
 
-  void getProducts() async {
+ void getProducts() async {
     SqliteService sqliteService = SqliteService();
     Database db = await sqliteService.openDB();
-    Product? product;
 
-    String statement =
-        '''SELECT * FROM ProductosCatalogo''';
+    String statement = '''SELECT * FROM ProductosCatalogo''';
 
     try {
       List<Map> result = await db.rawQuery(statement);
       if (result.isNotEmpty) {
+        productList.clear();
         for (var item in result) {
-          product = Product(
+          DateTime? createAt;
+          try {
+            createAt = item["CreateAt"] != null ? DateTime.parse(item["CreateAt"]) : null;
+          } catch (e) {
+            print("Error parsing date: ${item["CreateAt"]}");
+            createAt = null;
+          }
+          
+          Product product = Product(
             agrupacion: item["Agrupacion"],
             archivo: item["Archivo"],
             bodega: item["Bodega"],
@@ -59,39 +68,60 @@ class ProductViewModel extends GetxController {
             unidadmedida: item["Unidadmedida"],
             vendedor: item["Vendedor"],
             marcadd: item["marcadd"],
+            createAt: createAt ?? DateTime.now(),
           );
           productList.add(product);
         }
       }
+      filteredProductList.value = productList;
     } catch (e) {
-      Get.snackbar("Error", 'El producto no existe',
+      print("Error fetching products: $e");
+      Get.snackbar("Error", 'No se pudieron cargar los productos',
           backgroundColor: Colors.red.shade400, colorText: Colors.white);
     }
   }
-  //Método para eliminar un producto
+
+  void filterProductsByDate() {
+    if (startDate.value == null || endDate.value == null) {
+      filteredProductList.value = productList;
+    } else {
+      filteredProductList.value = productList.where((product) {
+        return product.createAt.isAfter(startDate.value!) &&
+               product.createAt.isBefore(endDate.value!.add(Duration(days: 1)));
+      }).toList();
+    }
+  }
+
+  void setStartDate(DateTime date) {
+    startDate.value = date;
+    filterProductsByDate();
+  }
+
+  void setEndDate(DateTime date) {
+    endDate.value = date;
+    filterProductsByDate();
+  }
+
   void deleteProduct(int index) async {
-    if (index < 0 || index >= productList.length) {
+    if (index < 0 || index >= filteredProductList.length) {
       Get.snackbar("Error", "Producto no encontrado");
       return;
     }
 
-    // Obtener el producto a eliminar
-    Product productToDelete = productList[index];
+    Product productToDelete = filteredProductList[index];
 
-    // Eliminar de la base de datos
     SqliteService sqliteService = SqliteService();
     Database db = await sqliteService.openDB();
     
     try {
-     int test = await db.delete(
+      await db.delete(
         'ProductosCatalogo',
         where: 'Codigo = ?',
         whereArgs: [productToDelete.codigo],
       );
-      print(test);
 
-      // Eliminar de la lista
-      productList.removeAt(index);
+      productList.remove(productToDelete);
+      filteredProductList.remove(productToDelete);
 
       Get.snackbar("Éxito", "Producto eliminado correctamente");
     } catch (e) {
@@ -99,56 +129,53 @@ class ProductViewModel extends GetxController {
     }
   }
 
-
-///////////////////////////////////////////////////////////////////
-void editProduct(int index, Product updatedProduct) async {
-  if (index < 0 || index >= productList.length) {
-    Get.snackbar("Error", "Producto no encontrado");
-    return;
-  }
-
-  // Obtener el producto a editar
-  Product productToEdit = productList[index];
-
-  // Actualizar la base de datos
-  SqliteService sqliteService = SqliteService();
-  Database db = await sqliteService.openDB();
-
-  try {
-    int rowsAffected = await db.update(
-      'ProductosCatalogo',
-      updatedProduct.toJson(), // Asegúrate de tener un método toJson en tu modelo Product
-      where: 'Codigo = ?',
-      whereArgs: [productToEdit.codigo],
-    );
-
-    if (rowsAffected > 0) {
-      // Actualizar la lista local
-      productList[index] = updatedProduct; // Reemplazar el producto en la lista
-      Get.snackbar("Éxito", "Producto editado correctamente");
-    } else {
-      Get.snackbar("Error", "No se encontró el producto para editar");
+  void editProduct(int index, Product updatedProduct) async {
+    if (index < 0 || index >= filteredProductList.length) {
+      Get.snackbar("Error", "Producto no encontrado");
+      return;
     }
-  } catch (e) {
-    Get.snackbar("Error", "No se pudo editar el producto");
+
+    Product productToEdit = filteredProductList[index];
+
+    SqliteService sqliteService = SqliteService();
+    Database db = await sqliteService.openDB();
+
+    try {
+      int rowsAffected = await db.update(
+        'ProductosCatalogo',
+        updatedProduct.toJson(),
+        where: 'Codigo = ?',
+        whereArgs: [productToEdit.codigo],
+      );
+
+      if (rowsAffected > 0) {
+        int originalIndex = productList.indexWhere((p) => p.codigo == productToEdit.codigo);
+        if (originalIndex != -1) {
+          productList[originalIndex] = updatedProduct;
+        }
+        filteredProductList[index] = updatedProduct;
+        Get.snackbar("Éxito", "Producto editado correctamente");
+      } else {
+        Get.snackbar("Error", "No se encontró el producto para editar");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "No se pudo editar el producto");
+    }
   }
-}
-//////////////////////////////////////////////////////////////////////////7
-  // Método para agregar un producto
+
   void addProduct(Product newProduct) async {
     SqliteService sqliteService = SqliteService();
     Database db = await sqliteService.openDB();
 
-    // Insertar el nuevo producto en la base de datos
     try {
       await db.insert(
         'ProductosCatalogo',
         newProduct.toJson(),
-        conflictAlgorithm: ConflictAlgorithm.replace, // Reemplazar si existe
+        conflictAlgorithm: ConflictAlgorithm.replace,
       );
 
-      // Añadir el producto a la lista
       productList.add(newProduct);
+      filterProductsByDate();
 
       Get.snackbar("Éxito", "Producto agregado correctamente");
     } catch (e) {
@@ -156,69 +183,24 @@ void editProduct(int index, Product updatedProduct) async {
     }
   }
 
- Future<Product?> getLastProduct() async {
-  SqliteService sqliteService = SqliteService();
-  Database db = await sqliteService.openDB();
+  Future<int> getNextCodigo() async {
+    SqliteService sqliteService = SqliteService();
+    Database db = await sqliteService.openDB();
 
-  Product? lastProduct;
+    int nextCodigo = 1;
 
-  // Consulta SQL para obtener el último producto según el campo 'Codigo'
-  String statement = '''
-    SELECT * FROM ProductosCatalogo 
-    ORDER BY Codigo DESC 
-    LIMIT 1
-  ''';
+    try {
+      List<Map> result = await db.rawQuery('''
+        SELECT MAX(CAST(Codigo AS INTEGER)) as maxCodigo FROM ProductosCatalogo
+      ''');
 
-  try {
-    // Ejecutar la consulta
-    List<Map<String, dynamic>> result = await db.rawQuery(statement);
-
-    if (result.isNotEmpty) {
-      var item = result.first;
-
-      // Crear una instancia de Product con los datos obtenidos
-      lastProduct = Product(
-        agrupacion: item["Agrupacion"],
-        archivo: item["Archivo"],
-        bodega: item["Bodega"],
-        categoria: item["Categoria"],
-        cenExt2: item["Cen_ext2"],
-        clave: item["Clave"],
-        codigo: item["Codigo"],
-        core: item["Core"],
-        ean: item["Ean"],
-        gm4: item["GM4"],
-        grupo: item["Grupo"],
-        itf: item["Itf"],
-        iva: item["Iva"],
-        linea: item["Linea"],
-        lineaproduccion: item["Lineaproduccion"],
-        marca: item["Marca"],
-        nombre: item["Nombre"],
-        pagaPastilla: item["Paga_pastilla"],
-        peso: item["Peso"]?.toDouble(),
-        portafolio: item["Portafolio"],
-        precio: item["Precio"],
-        saldo: item["Saldo"],
-        sector: item["Sector"],
-        subcategoria: item["Subcategoria"],
-        sublinea: item["Sublinea"],
-        unidades: item["Unidades"],
-        unidadesxcaja: item["Unidadesxcaja"],
-        unidadmedida: item["Unidadmedida"],
-        vendedor: item["Vendedor"],
-        marcadd: item["marcadd"],
-      );
+      if (result.isNotEmpty && result[0]['maxCodigo'] != null) {
+        nextCodigo = int.parse(result[0]['maxCodigo'].toString()) + 1;
+      }
+    } catch (e) {
+      print("Error al obtener el siguiente código: $e");
     }
-  } catch (e) {
-    Get.snackbar("Error", "No se pudo obtener el último producto",
-        backgroundColor: Colors.red.shade400, colorText: Colors.white);
+
+    return nextCodigo;
   }
-
-  return lastProduct;
 }
-  
-}
-
-
-
