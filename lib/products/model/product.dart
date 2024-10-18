@@ -39,6 +39,8 @@ class Product {
     String unidadmedida;
     String vendedor;
     String marcadd;
+    String productos;
+    String createAt;
 
     Product({
         required this.agrupacion,
@@ -71,6 +73,8 @@ class Product {
         required this.unidadmedida,
         required this.vendedor,
         required this.marcadd,
+        required this.productos,
+        required this.createAt,
     });
 
     factory Product.fromJson(Map<String, dynamic> json) => Product(
@@ -103,7 +107,9 @@ class Product {
         unidadesxcaja: json["Unidadesxcaja"],
         unidadmedida: json["Unidadmedida"],
         vendedor: json["Vendedor"],
-        marcadd: json["marcadd"],
+        marcadd: json["Marcadd"],
+        productos: json["Productos"],
+        createAt: json["CreateAt"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -136,6 +142,8 @@ class Product {
         "Unidadesxcaja": unidadesxcaja,
         "Unidadmedida": unidadmedida,
         "Vendedor": vendedor,
-        "marcadd": marcadd,
+        "Marcadd": marcadd,
+        "Productos": productos,
+        "CreateAt": createAt,
     };
 }
