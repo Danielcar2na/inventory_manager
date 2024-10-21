@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Home/view/home_screen.dart';
 import 'package:flutter_application_1/database/sqlite.dart';
 import 'package:flutter_application_1/login/model/seller.dart';
-import 'package:flutter_application_1/products/view_model/product_view_model.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -11,7 +11,7 @@ class LoginViewModel extends GetxController {
   final RxBool isLoading = false.obs;
 
   @override
-  onInit() {
+  void onInit() {
     userTextField.text = '4160';
     passwordTextField.text = '4160';
     super.onInit();
@@ -50,6 +50,8 @@ class LoginViewModel extends GetxController {
 
       if (result.isNotEmpty) {
         await searchSeller(usuario);
+        // Navegar a la pantalla Home después de un login exitoso
+        Get.off(() => HomeScreen());
       } else {
         Get.snackbar("Error", 'El usuario o la contraseña son incorrectos',
             backgroundColor: Colors.red.shade400, colorText: Colors.white);
@@ -89,7 +91,8 @@ class LoginViewModel extends GetxController {
           distrito: item['distrito']
         );
 
-        Get.put(ProductViewModel());
+        // Aquí puedes hacer algo con la información del vendedor si es necesario
+        // Por ejemplo, almacenarla en el estado global o en un servicio
       } else {
         Get.snackbar("Error", 'No se encontró información del vendedor',
             backgroundColor: Colors.red.shade400, colorText: Colors.white);
