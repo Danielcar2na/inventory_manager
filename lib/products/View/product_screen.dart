@@ -15,7 +15,7 @@ class ProductScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Inventario'),
+          title: const Text('Inventario'),
           actions: [
             AddProductForm(),
           ],
@@ -57,7 +57,7 @@ class ProductScreen extends StatelessWidget {
                   : 'Seleccionar fecha inicial'),
             )),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Obx(() => ElevatedButton(
               onPressed: () => _selectDate(isStartDate: false),
